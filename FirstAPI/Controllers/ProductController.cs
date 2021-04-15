@@ -1,5 +1,8 @@
-﻿using Database.MyDbContext;
+﻿using CategoryModel;
+using CreateProductModel;
+using Database.MyDbContext;
 using Microsoft.AspNetCore.Mvc;
+using ProductModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,5 +26,43 @@ namespace FirstAPI.Controllers
         {
             return StatusCode(200, _context.Products.OrderBy(x => x.Name));
         }
+
+        [HttpGet("{id}")]
+        public IActionResult Show(Guid id)
+        {
+            Product product = _context.Products.Where(x => x.Id == id).FirstOrDefault();
+            if(product == null)
+            {
+                return StatusCode(400, string.Format("Theres no product with this {0} id",id));
+            }
+            return StatusCode(200, product);
+        }
+
+        [HttpPost]
+        public IActionResult Create([FromBody]CreateProduct Request)
+        {
+            Product product = _context.Products.Where(x => x.Name == Request.Name).FirstOrDefault();
+            Category category = _context.Categories.Where(x => x.Id == Request.CategoryId).FirstOrDefault();
+            if(product != null)
+            {
+                return StatusCode(400, string.Format("Product with this {0} name already taken!",Request.Name));
+            }
+            if(category == null)
+            {
+                return StatusCode(400, string.Format("Theres no category with this {0} id", Request.CategoryId));
+            }
+
+            _context.Products.Add(new Product()
+            {
+                Name = Request.Name,
+                Code = Request.Code,
+                Description = Request.Description,
+                ExpireDate = Request.ExpireDate,
+                CategoryId = Request.CategoryId
+            });
+
+            _context.SaveChanges();
+            return StatusCode(201, "Product Create Successfully");
+        } 
     }
 }
