@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CategoryModel;
 using ProductModel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Database.MyDbContext
 {
@@ -15,6 +16,11 @@ namespace Database.MyDbContext
         {
         }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseLazyLoadingProxies();
+        }
+       
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
     }

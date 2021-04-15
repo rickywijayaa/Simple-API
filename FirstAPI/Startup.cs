@@ -29,7 +29,9 @@ namespace FirstAPI
         {
             services.AddControllers();
             services.AddDbContext<MyDbContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("Connection")));
+            options.UseSqlServer(Configuration.GetConnectionString("Connection"))
+            );
+
 
         }
 
