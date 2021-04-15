@@ -1,6 +1,7 @@
 ﻿using CategoryModel;
 using CreateProductModel;
 using Database.MyDbContext;
+using DeleteProductModel;
 using Microsoft.AspNetCore.Mvc;
 using ProductModel;
 using System;
@@ -89,6 +90,20 @@ namespace FirstAPI.Controllers
             _context.SaveChanges();
 
             return StatusCode(200, "Updated Product Succesfully");
+        }
+
+        [HttpDelete]
+        public IActionResult Delete([FromBody]DeleteProduct Request)
+        {
+            Product product = _context.Products.Where(x => x.Id == Request.Id).FirstOrDefault();
+            if(product == null)
+            {
+                return StatusCode(400, string.Format("Theres no product with this {0} id", Request.Id));
+            }
+
+            _context.Remove(product);
+            _context.SaveChanges();
+            return StatusCode(200, "Delete Product Succesfully");
         }
     }
 }
