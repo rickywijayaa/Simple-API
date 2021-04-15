@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UpdateProductModel;
 
 namespace FirstAPI.Controllers
 {
@@ -63,6 +64,31 @@ namespace FirstAPI.Controllers
 
             _context.SaveChanges();
             return StatusCode(201, "Product Create Successfully");
-        } 
+        }
+
+        [HttpPut]
+        public IActionResult Update([FromBody] UpdateProduct Request)
+        {
+            Product product = _context.Products.Where(x => x.Id == Request.Id).FirstOrDefault();
+            Category category = _context.Categories.Where(x => x.Id == Request.CategoryId).FirstOrDefault();
+            if (product == null)
+            {
+                return StatusCode(400, string.Format("Theres no product with this {0} id", Request.Id));
+            }
+            if (category == null)
+            {
+                return StatusCode(400, string.Format("Theres no category with this {0} id", Request.CategoryId));
+            }
+
+            product.Name = Request.Name;
+            product.Code = Request.Code;
+            product.Description = Request.Description;
+            product.ExpireDate = Request.ExpireDate;
+            product.CategoryId = Request.CategoryId;
+
+            _context.SaveChanges();
+
+            return StatusCode(200, "Updated Product Succesfully");
+        }
     }
 }
