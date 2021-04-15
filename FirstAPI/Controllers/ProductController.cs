@@ -3,6 +3,7 @@ using CreateProductModel;
 using Database.MyDbContext;
 using DeleteProductModel;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ProductModel;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace FirstAPI.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return StatusCode(200, _context.Products.OrderBy(x => x.Name));
+            return StatusCode(200, _context.Products.Include(x => x.Category).OrderBy(x => x.Name));
         }
 
         [HttpGet("{id}")]
