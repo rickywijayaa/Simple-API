@@ -1,6 +1,7 @@
 ﻿using CategoryModel;
 using CreateCategoryModel;
 using Database.MyDbContext;
+using DeleteCategoryModel;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -69,6 +70,15 @@ namespace FirstAPI.Controllers
             category.Name = Request.Name;
             _context.SaveChanges();
             return StatusCode(200, "Category Updated Successfully");
+        }
+
+        [HttpDelete]
+        public IActionResult Delete([FromBody]DeleteCategory Request)
+        {
+            Category category = _context.Categories.Where(x => x.Id == Request.Id).FirstOrDefault();
+            _context.Categories.Remove(category);
+            _context.SaveChanges();
+            return StatusCode(200, "Deleted Category Succesfully");
         }
 
     }
