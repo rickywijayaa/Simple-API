@@ -1,4 +1,5 @@
-﻿using Database.MyDbContext;
+﻿using CategoryModel;
+using Database.MyDbContext;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,17 @@ namespace FirstAPI.Controllers
         public IActionResult Index()
         {
             return StatusCode(200, _context.Categories);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult Show(Guid id)
+        {
+            Category category = _context.Categories.Where(x => x.Id == id).FirstOrDefault();
+            if(category == null)
+            {
+                return StatusCode(400, string.Format("Theres no category with this {0} name", category.Name));
+            }
+            return StatusCode(200, category);
         }
     }
 }
