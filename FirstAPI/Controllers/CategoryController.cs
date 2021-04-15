@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UpdateCategoryModel;
 
 namespace FirstAPI.Controllers
 {
@@ -54,6 +55,20 @@ namespace FirstAPI.Controllers
 
             _context.SaveChanges();
             return StatusCode(201, "Category Created Successfully");
+        }
+
+        [HttpPut]
+        public IActionResult Update([FromBody]UpdateCategory Request)
+        {
+            Category category = _context.Categories.Where(x => x.Id == Request.Id).FirstOrDefault();
+            if(category == null)
+            {
+                return StatusCode(400, string.Format("Theres no category with this {0} id", Request.Id));
+            }
+
+            category.Name = Request.Name;
+            _context.SaveChanges();
+            return StatusCode(200, "Category Updated Successfully");
         }
 
     }
