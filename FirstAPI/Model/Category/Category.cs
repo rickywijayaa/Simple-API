@@ -9,5 +9,10 @@ namespace CategoryModel
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+
+        public static implicit operator List<object>(Category v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

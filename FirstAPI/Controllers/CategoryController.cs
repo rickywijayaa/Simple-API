@@ -2,6 +2,7 @@
 using CreateCategoryModel;
 using Database.MyDbContext;
 using DeleteCategoryModel;
+using FirstAPI.Model;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using UpdateCategoryModel;
 
 namespace FirstAPI.Controllers
 {
+    [ApiVersion("1.0")]
     [ApiController]
     [Route("api/[controller]")]
     public class CategoryController : ControllerBase
@@ -26,59 +28,107 @@ namespace FirstAPI.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return StatusCode(200, _context.Categories);
+            ResponseModel<List<Category>> response = new ResponseModel<List<Category>>();
+            try
+            {
+                response.Data = _context.Categories.OrderBy(x => x.Name).ToList();
+                return StatusCode(200, response);
+            }catch(Exception err)
+            {
+                response.Errors.Add(err.Message);
+                return StatusCode(500, response);
+            }
+
         }
 
         [HttpGet("{id}")]
         public IActionResult Show(Guid id)
         {
-            Category category = _context.Categories.Where(x => x.Id == id).FirstOrDefault();
-            if(category == null)
+            ResponseModel<Category> response = new ResponseModel<Category>();
+            try
             {
-                return StatusCode(400, string.Format("Theres no category with this {0} id", id));
+                Category category = _context.Categories.Where(x => x.Id == id).FirstOrDefault();
+                if (category == null) response.Errors.Add(string.Format("Theres no category with this {0} id", id));
+                if (response.Errors.Count > 0) return StatusCode(400, response);
+                response.Data = category;
+                return StatusCode(200, response);
+
             }
-            return StatusCode(200, category);
+            catch(Exception err)
+            {
+                response.Errors.Add(err.Message);
+                return StatusCode(500, response);
+            }
+            
         }
 
         [HttpPost]
         public IActionResult Create([FromBody]CreateCategory Request)
         {
-            Category category = _context.Categories.Where(x => x.Name == Request.Name).FirstOrDefault();
-            if(category != null)
+            ResponseModel<Category> response = new ResponseModel<Category>();
+            try
             {
-                return StatusCode(400, string.Format("Category with this {0} name already taken!",Request.Name));
+                Category category = _context.Categories.Where(x => x.Name == Request.Name).FirstOrDefault();
+                if (category != null) response.Errors.Add(string.Format("This category with this {0} name already taken!", Request.Name));
+                if (response.Errors.Count > 0) return StatusCode(400, response);
+                category = new Category()
+                {
+                    Name = Request.Name
+                };
+                _context.Categories.Add(category);
+                _context.SaveChanges();
+                _context.Entry(category).Reload();
+                response.Data = category;
+                return StatusCode(201, response);
             }
-
-            _context.Categories.Add(new Category()
+            catch(Exception err)
             {
-                Name = Request.Name
-            });
-
-            _context.SaveChanges();
-            return StatusCode(201, "Category Created Successfully");
+                response.Errors.Add(err.Message);
+                return StatusCode(500, response);
+            }
         }
 
         [HttpPut]
         public IActionResult Update([FromBody]UpdateCategory Request)
         {
-            Category category = _context.Categories.Where(x => x.Id == Request.Id).FirstOrDefault();
-            if(category == null)
+            ResponseModel<Category> response = new ResponseModel<Category>();
+            try
             {
-                return StatusCode(400, string.Format("Theres no category with this {0} id", Request.Id));
+                Category category = _context.Categories.Where(x => x.Id == Request.Id).FirstOrDefault();
+                if (category == null) response.Errors.Add(string.Format("Theres no category with this {0} id", Request.Id));
+                if (response.Errors.Count > 0) return StatusCode(400, response);
+                category.Name = Request.Name;
+                _context.SaveChanges();
+                _context.Entry(category).Reload();
+                response.Data = category;
+                return StatusCode(200, response);
             }
-
-            category.Name = Request.Name;
-            _context.SaveChanges();
-            return StatusCode(200, "Category Updated Successfully");
+            catch (Exception err)
+            {
+                response.Errors.Add(err.Message);
+                return StatusCode(500, response);
+            }
         }
 
         [HttpDelete]
         public IActionResult Delete([FromBody]DeleteCategory Request)
         {
-            Category category = _context.Categories.Where(x => x.Id == Request.Id).FirstOrDefault();
-            _context.Categories.Remove(category);
-            _context.SaveChanges();
-            return StatusCode(200, "Deleted Category Succesfully");
+            ResponseModel<object> response = new ResponseModel<object>();
+            try
+            {
+                Category category = _context.Categories.Where(x => x.Id == Request.Id).FirstOrDefault();
+                if (category == null) response.Errors.Add(string.Format("Theres no category with this {0} id", Request.Id));
+                if (response.Errors.Count > 0) return StatusCode(400, response);
+                _context.Categories.Remove(category);
+                _context.SaveChanges();
+                _context.Entry(category).Reload();
+                return StatusCode(200, response);
+            }
+            catch (Exception err)
+            {
+                response.Errors.Add(err.Message);
+                return StatusCode(500, response);
+            }
         }
 
     }
