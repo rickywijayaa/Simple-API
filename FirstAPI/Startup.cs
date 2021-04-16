@@ -22,6 +22,15 @@ namespace FirstAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Cors
+            services.AddCors(o => o.AddDefaultPolicy(builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
+            //Api
             services.AddApiVersioning(config =>
             {
                 config.ReportApiVersions = true;
@@ -29,6 +38,8 @@ namespace FirstAPI
                 config.ApiVersionReader = new HeaderApiVersionReader("api-v");
 
             });
+
+            //Connect Server
             services.AddControllers();
             services.AddDbContext<MyDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("Connection"))
