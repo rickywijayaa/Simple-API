@@ -33,7 +33,7 @@ namespace FirstAPI.Controllers
             {
                 response.Data = _context.Categories.OrderBy(x => x.Name).ToList();
                 return StatusCode(200, response);
-            }catch(Exception err)
+            } catch (Exception err)
             {
                 response.Errors.Add(err.Message);
                 return StatusCode(500, response);
@@ -54,16 +54,16 @@ namespace FirstAPI.Controllers
                 return StatusCode(200, response);
 
             }
-            catch(Exception err)
+            catch (Exception err)
             {
                 response.Errors.Add(err.Message);
                 return StatusCode(500, response);
             }
-            
+
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody]CreateCategory Request)
+        public IActionResult Create([FromBody] CreateCategory Request)
         {
             ResponseModel<Category> response = new ResponseModel<Category>();
             try
@@ -81,7 +81,7 @@ namespace FirstAPI.Controllers
                 response.Data = category;
                 return StatusCode(201, response);
             }
-            catch(Exception err)
+            catch (Exception err)
             {
                 response.Errors.Add(err.Message);
                 return StatusCode(500, response);
@@ -89,7 +89,7 @@ namespace FirstAPI.Controllers
         }
 
         [HttpPut]
-        public IActionResult Update([FromBody]UpdateCategory Request)
+        public IActionResult Update([FromBody] UpdateCategory Request)
         {
             ResponseModel<Category> response = new ResponseModel<Category>();
             try
@@ -110,14 +110,14 @@ namespace FirstAPI.Controllers
             }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]DeleteCategory Request)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(Guid id)
         {
             ResponseModel<object> response = new ResponseModel<object>();
             try
             {
-                Category category = _context.Categories.Where(x => x.Id == Request.Id).FirstOrDefault();
-                if (category == null) response.Errors.Add(string.Format("Theres no category with this {0} id", Request.Id));
+                Category category = _context.Categories.Where(x => x.Id == id).FirstOrDefault();
+                if (category == null) response.Errors.Add(string.Format("Theres no category with this {0} id", id));
                 if (response.Errors.Count > 0) return StatusCode(400, response);
                 _context.Categories.Remove(category);
                 _context.SaveChanges();

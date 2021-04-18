@@ -25,7 +25,7 @@ namespace FirstAPI
             //Cors
             services.AddCors(o => o.AddDefaultPolicy(builder =>
             {
-                builder.AllowAnyOrigin()
+                builder.WithOrigins("http://localhost:3000")
                        .AllowAnyMethod()
                        .AllowAnyHeader();
             }));
@@ -51,6 +51,7 @@ namespace FirstAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

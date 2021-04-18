@@ -99,40 +99,52 @@ namespace FirstAPI.Controllers
         [HttpPut]
         public IActionResult Update([FromBody] UpdateProduct Request)
         {
-            Product product = _context.Products.Where(x => x.Id == Request.Id).FirstOrDefault();
-            Category category = _context.Categories.Where(x => x.Id == Request.CategoryId).FirstOrDefault();
-            if (product == null)
+            ResponseModel<Product> response = new ResponseModel<Product>();
+            try
             {
-                return StatusCode(400, string.Format("Theres no product with this {0} id", Request.Id));
-            }
-            if (category == null)
+                Product product = _context.Products.Where(x => x.Id == Request.Id).FirstOrDefault();
+                Category category = _context.Categories.Where(x => x.Id == Request.CategoryId).FirstOrDefault();
+                if (product == null) response.Errors.Add(string.Format("Theres no product with this {0} id", Request.Id));
+                if (category == null) response.Errors.Add(string.Format("Theres no category with this {0} id", Request.CategoryId));
+                if(response.Errors.Count > 0) return StatusCode(500, response);
+               
+                product.Name = Request.Name;
+                product.Code = Request.Code;
+                product.Description = Request.Description;
+                product.ExpireDate = Request.ExpireDate;
+                product.CategoryId = Request.CategoryId;
+
+
+                _context.SaveChanges();
+                return StatusCode(200, response);
+            }catch(Exception err)
             {
-                return StatusCode(400, string.Format("Theres no category with this {0} id", Request.CategoryId));
+                response.Errors.Add(err.Message);
+                return StatusCode(500, response);
             }
 
-            product.Name = Request.Name;
-            product.Code = Request.Code;
-            product.Description = Request.Description;
-            product.ExpireDate = Request.ExpireDate;
-            product.CategoryId = Request.CategoryId;
-
-            _context.SaveChanges();
-
-            return StatusCode(200, "Updated Product Succesfully");
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]DeleteProduct Request)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(Guid id)
         {
-            Product product = _context.Products.Where(x => x.Id == Request.Id).FirstOrDefault();
-            if(product == null)
+            ResponseModel<object> response = new ResponseModel<object>();
+            try
             {
-                return StatusCode(400, string.Format("Theres no product with this {0} id", Request.Id));
+                Product product = _context.Products.Where(x => x.Id == id).FirstOrDefault();
+                if (product == null) response.Errors.Add(string.Format("Theres no product with this {0}", id));
+                if (response.Errors.Count > 0) return StatusCode(500, response);
+                
+                _context.Products.Remove(product);
+                _context.SaveChanges();
+                _context.Entry(product).Reload();
+                return StatusCode(200, response);
+           
+            }catch(Exception err)
+            {
+                response.Errors.Add(err.Message);
+                return StatusCode(500, response);
             }
-
-            _context.Remove(product);
-            _context.SaveChanges();
-            return StatusCode(200, "Delete Product Succesfully");
         }
     }
 }
